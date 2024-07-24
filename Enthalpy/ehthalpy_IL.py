@@ -49,7 +49,7 @@ def calculate_enthalpy_from_csv(file_path):
     df_updated = pd.read_csv(file_path)
 
     # Create a Series of temperatures and convert to NumPy array
-    T = pd.Series(np.arange(298.15, 373.15, 0.1))
+    T = pd.Series(np.arange(298.15, 373.15, 1))
     T_array = T.to_numpy()
 
     # Create an empty DataFrame to store enthalpy values
@@ -72,21 +72,18 @@ def calculate_enthalpy_from_csv(file_path):
         ) + (1 / 3) * row['C2'] * (T_array ** 3 - 298.15 ** 3)
 
         # Calculate the total enthalpy by adding H_ref
-        H_array = delta_H_array + H_ref
-
-        # Set the values in H_array to H_ref where T_array equals T_ref
-        H_array[T_array == 298.15] = H_ref
+        H_array = delta_H_array  + H_ref 
 
         # Convert to Pandas Series
         enthalpy_values_J_mol = pd.Series(H_array, index=T)
 
         # Convert enthalpy values from J/mol to kJ/kg and store in the DataFrame
-        enthalpy_df[row['Ionic liquid']] = enthalpy_values_J_mol / 1000 / (molar_mass / 1000)
+        enthalpy_df[row['Ionic liquid']] = enthalpy_values_J_mol 
 
         # Convert Cp parameters from J/mol/K to kJ/mol/K
         df_updated.loc[index, ['C0', 'C1', 'C2']] /= 1000
 
-    return df_updated[['Ionic liquid', 'C0', 'C1', 'C2']], enthalpy_df
+    return df_updated[['Ionic liquid', 'C0', 'C1', 'C2']], enthalpy_df /1000
 
 # Call the function with the CSV file path
 cp_result_df, enthalpy_result_df = calculate_enthalpy_from_csv('IL_Cp_with_Molar_Mass.csv')
@@ -95,5 +92,5 @@ cp_result_df, enthalpy_result_df = calculate_enthalpy_from_csv('IL_Cp_with_Molar
 print("Cp in kJ/(mol*K)")
 print(cp_result_df.head().to_markdown(index=False, numalign="left", stralign="left"))
 
-print("\nenthalpy in kJ/kg")
+print("\nenthalpy in kJ/mol")
 print(enthalpy_result_df.head().to_markdown(numalign="left", stralign="left"))
